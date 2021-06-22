@@ -103,6 +103,20 @@ for f in crawl(max_workers=4):
         # Add all the metadata objects to the record for this org
         org_to_meta[org] += metadata_list
 
+        for metadata in metadata_list:
+            print(metadata)
+            # TODO: Check the spec for dataset IDs
+            dataset_id = f'{org.organisation_id}-{metadata.stable_identifier}'.lower()
+            try:
+                ckan_dataset = ckan.action.package_show(id=dataset_id)
+            except NotFound:
+                ckan.action.package_create(
+                    name=dataset_id,
+                    title=metadata.title,
+                    notes=metadata.description,
+                    owner_org=org.organisation_id,
+                )
+
 # Just print the organisation -> metadata list for now. In a real harvester at this
 # point we'd do the business of generating unique IDs from the Organisation and Metadata
 # objects, then working out whether bits and pieces needed updating etc etc and poking
