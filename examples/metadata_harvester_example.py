@@ -1,7 +1,9 @@
 import logging
+import os
 import pprint
 from concurrent.futures import ThreadPoolExecutor, Future
 from typing import List, Dict, Tuple
+from ckanapi import RemoteCKAN, NotFound
 
 from ib1.openenergy.support import FAPISession, httpclient_logging_patch, RaidiamDirectory
 from ib1.openenergy.support.metadata import Metadata, load_metadata
@@ -44,6 +46,7 @@ orgid_to_org: Dict[str, Organisation] = {org.organisation_id: org for org in org
 orgid_to_urls: Dict[str, List[str]] = {org_id: [server.customer_friendly_logo_uri for server in orgid_to_auth[org_id]]
                                        for org_id in orgid_to_auth if orgid_to_auth[org_id]}
 
+ckan = RemoteCKAN(address=os.environ['CKAN_SITE_URL'], apikey=os.environ['CKAN_API_KEY'])
 
 # Schedules all URL fetch and parse jobs on a thread pool executor, returning a generator
 # over futures to lists of dictionaries from organisation to lists of metadata objects
@@ -52,6 +55,15 @@ def crawl(max_workers=4) -> List[Future]:
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         # Iterate over the previously determined list of metadata URLs for each org
         for org_id, urls in orgid_to_urls.items():
+            if len(org_id) >= 2:
+                try:
+                    ckan_org = ckan.action.organization_show(id=org_id)
+                except NotFound:
+                    org = orgid_to_org[org_id]
+                    ckan.action.organization_create(
+                        name=org_id,
+                        title=org.organisation_name,
+                    )
 
             # Fetch from the locally bound url list for this org
             def fetch_and_parse() -> List[Tuple[Organisation, List[Metadata]]]:
@@ -95,5 +107,5 @@ for f in crawl(max_workers=4):
 # point we'd do the business of generating unique IDs from the Organisation and Metadata
 # objects, then working out whether bits and pieces needed updating etc etc and poking
 # CKAN.
-pp = pprint.PrettyPrinter(indent=4)
-pp.pprint(org_to_meta)
+#pp = pprint.PrettyPrinter(indent=4)
+#pp.pprint(org_to_meta)

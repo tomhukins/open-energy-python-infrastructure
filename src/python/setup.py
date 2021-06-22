@@ -14,7 +14,7 @@ setup(
                  'Topic :: Security',
                  'Topic :: Scientific/Engineering'],
     packages=find_namespace_packages(),
-    install_requires=['requests', 'flask', 'cachetools', 'cryptography', 'pyyaml', 'PyLD', 'pyjwt', 'pem'],
+    install_requires=['requests', 'flask', 'cachetools', 'ckanapi', 'cryptography', 'pyyaml', 'PyLD', 'pyjwt', 'pem'],
     entry_points={
         'console_scripts': ['oe_install_cacerts=ib1.openenergy.support.cacert:main']
     }
