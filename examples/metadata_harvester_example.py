@@ -17,11 +17,11 @@ httpclient_logging_patch(level=logging.DEBUG)
 
 # Set up a session, this will get a token from the directory when needed
 
-f = FAPISession(client_id='kZuAsn7UYZ98WWh29hDPf',
+f = FAPISession(client_id='xZqGzEL8k14cbLJObUfKQ',
                 issuer_url='https://matls-auth.directory.energydata.org.uk',
-                requested_scopes='directory:software foo',
-                private_key='/home/tom/Desktop/certs/a.key',
-                certificate='/home/tom/Desktop/certs/a.pem')
+                requested_scopes='directory:software',
+                private_key='/home/tom/checkouts/open-energy-harvester/certificates/directory.key',
+                certificate='/home/tom/checkouts/open-energy-harvester/certificates/directory.pem')
 
 # Create a client to the directory
 directory = RaidiamDirectory(fapi=f, base_url='https://matls-dirapi.directory.energydata.org.uk/')
