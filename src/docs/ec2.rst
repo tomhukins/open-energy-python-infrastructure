@@ -30,22 +30,22 @@ default Python 2 or 3.
 
 .. code-block:: bash
 
-    > sudo yum install gcc openssl-devel bzip2-devel libffi-devel
+    > sudo apt install build-essential libbz2-dev libffi-dev liblzma-dev libssl-dev libxslt1-dev zlib1g-dev
     > cd /opt
     > sudo wget https://www.python.org/ftp/python/3.9.4/Python-3.9.4.tgz
     > sudo tar xzf Python-3.9.4.tgz
     > cd Python-3.9.4
     > sudo ./configure --enable-optimizations
-    > sudo make altinstall
+    > sudo make -j4 altinstall
+    > cd /opt
+    > sudo rm -fr Python-3.9.4 Python-3.9.4.tgz
 
 Installing Nginx
 ----------------
 
-Nginx can be installed as an Amazon extra:
-
 .. code-block:: bash
 
-    > sudo amazon-linux-extras install nginx1
+    > sudo apt install nginx
 
 Installing and configuring Certbot
 ----------------------------------
@@ -55,10 +55,7 @@ Nginx:
 
 .. code-block:: bash
 
-    > sudo wget -r --no-parent -A 'epel-release-*.rpm' https://dl.fedoraproject.org/pub/epel/7/x86_64/Packages/e/
-    > sudo rpm -Uvh dl.fedoraproject.org/pub/epel/7/x86_64/Packages/e/epel-release-*.rpm
-    > sudo yum-config-manager --enable epel*
-    > sudo yum install -y certbot python2-certbot-nginx
+    > sudo apt install certbot python3-certbot-nginx
 
 .. note::
 
@@ -138,6 +135,7 @@ Restart Nginx to pick up these extra changes:
 .. code-block:: bash
 
     > sudo systemctl restart nginx
+    # This fails because $HOME/venv/lib/python3.9/site-packages/certifi/cacert.pem does not exist yet
 
 Generating key material using the directory
 -------------------------------------------
@@ -202,7 +200,7 @@ Create a certificate
     on your EC2 instance, it does not require ``sudo`` but must be run exactly as shown.
 
     When run, it will generate a ``.key`` and ``.csr`` file with unreasonably long names. You will need to upload the
-    CSR file in the next step, so copy it off your EC2 instance to your local desktop using ``scp``. Click ``Continue``
+    CSR file in the next step, so copy it off your EC2 instance to your local desktop using ``sftp``. Click ``Continue``
 
 .. figure:: ec2/directory_7.png
 
@@ -211,7 +209,7 @@ Create a certificate
 .. figure:: ec2/directory_8.png
 
     You should now see your newly minted certificate. Use the small green arrow on the right to download the certificate
-    itself, and use whatever mechanism you prefer to copy it across to your EC2 instance.
+    itself, and use ``sftp`` to copy it across to your EC2 instance.
 
     .. note::
 
@@ -318,6 +316,7 @@ Any changes to the data provider code may require a restart, to be safe run:
 
 .. code-block:: bash
 
+    # Restart nginx here (instead of above where it fails)
     > sudo systemctl restart gunicorn
 
 Logging and monitoring
